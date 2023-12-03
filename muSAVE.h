@@ -51,22 +51,52 @@ extern "C" { // }
     #endif
 #endif
 
-#if !defined(uint32_m)    || \
+#if !defined(int8_m)      || \
+	!defined(uint8_m)     || \
+	!defined(int16_m)     || \
 	!defined(uint16_m)    || \
-	!defined(MU_SIZE_MAX) 
+	!defined(int32_m)     || \
+	!defined(uint32_m)    || \
+	!defined(int64_m)     || \
+	!defined(uint64_m)    || \
+	!defined(MU_SIZE_MAX)
 	
 	#include <stdint.h>
 	
+	#ifndef int8_m
+		#define int8_m int8_t
+	#endif
+	#ifndef uint8_m
+		#define uint8_m uint8_t
+	#endif
+	#ifndef int16_m
+		#define int16_m int16_t
+	#endif
 	#ifndef uint16_m
 		#define uint16_m uint16_t
+	#endif
+	#ifndef int32_m
+		#define int32_m int32_t
 	#endif
 	#ifndef uint32_m
 		#define uint32_m uint32_t
 	#endif
+	#ifndef int64_m
+		#define int64_m int64_t
+	#endif
+	#ifndef uint64_m
+		#define uint64_m uint64_t
+	#endif
+
 	#ifndef MU_SIZE_MAX
 		#define MU_SIZE_MAX SIZE_MAX
 	#endif
 
+#endif
+
+#ifndef mu_memcpy
+	#include <string.h>
+	#define mu_memcpy memcpy
 #endif
 
 /* mus v3.1.0 header */
@@ -210,6 +240,7 @@ enum muSPIRVType {
 	MU_SPIRV_NO_TYPE=0,
 	MU_SPIRV_UINT32,
 	MU_SPIRV_STRING,
+	MU_SPIRV_LITERAL_VALUE,
 
 	MU_SPIRV_ID_TARGET,
 	MU_SPIRV_ID_TYPE,
@@ -219,6 +250,8 @@ enum muSPIRVType {
 	MU_SPIRV_ID_OPERAND,
 
 	MU_SPIRV_INDEFINITE,
+
+	MU_SPIRV_SIGN,
 
 	// enums
 	MU_SPIRV_SOURCE_LANGUAGE,
@@ -264,6 +297,15 @@ enum muSPIRVType {
 };
 typedef enum muSPIRVType muSPIRVType;
 
+enum muSPIRVDataType {
+	MU_SPIRV_UNKNOWN=0,
+	MU_SPIRV_INT,
+	MU_SPIRV_FLOAT,
+	MU_SPIRV_BOOL,
+	MU_SPIRV_OTHER
+};
+typedef enum muSPIRVDataType muSPIRVDataType;
+
 /* structs */
 
 struct muSPIRVInstruction {
@@ -274,6 +316,12 @@ struct muSPIRVInstruction {
 	muSPIRVType operands[MU_SPIRV_MAX_DEFAULT_OPERAND_COUNT];
 };
 typedef struct muSPIRVInstruction muSPIRVInstruction;
+
+struct muSPIRVTypeInfo {
+	muSPIRVDataType datatype;
+	uint32_m size;
+};
+typedef struct muSPIRVTypeInfo muSPIRVTypeInfo;
 
 /* variables */
 
@@ -1020,22 +1068,51 @@ extern "C" { // }
 /* instruction map */
 
 muSPIRVInstruction mu_global_SPIRV_instructions[MU_SPIRV_INSTRUCTION_COUNT] = {
-	{ "OpNop",             0,  1, 0,                   { 0 } },
-	{ "OpUndef",           1,  3, 0,                   { MU_SPIRV_ID_TYPE, MU_SPIRV_ID_RESULT, 0 } },
-	{ "OpSourceContinued", 2,  2, 0,                   { MU_SPIRV_STRING, 0 } },
-	{ "OpSource",          3,  3, 0,                   { MU_SPIRV_SOURCE_LANGUAGE, MU_SPIRV_UINT32, MU_SPIRV_ID_STRING, MU_SPIRV_STRING, 0 } },
-	{ "OpSourceExtension", 4,  2, 0,                   { MU_SPIRV_STRING, 0 } },
-	{ "OpName",            5,  3, 0,                   { MU_SPIRV_ID_TARGET, MU_SPIRV_STRING, 0 } },
-	{ "OpMemberName",      6,  4, 0,                   { MU_SPIRV_ID_TYPE, MU_SPIRV_UINT32, MU_SPIRV_STRING, 0 } },
-	{ "OpString",          7,  3, 0,                   { MU_SPIRV_ID_RESULT, MU_SPIRV_STRING, 0 } },
-	{ "OpLine",            8,  4, 0,                   { MU_SPIRV_ID_STRING, MU_SPIRV_UINT32, MU_SPIRV_UINT32, 0 } },
+	{ "OpNop",                0,  1, 0,                       { 0 } },
+	{ "OpUndef",              1,  3, 0,                       { MU_SPIRV_ID_TYPE, MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpSourceContinued",    2,  2, 0,                       { MU_SPIRV_STRING, 0 } },
+	{ "OpSource",             3,  3, 0,                       { MU_SPIRV_SOURCE_LANGUAGE, MU_SPIRV_UINT32, MU_SPIRV_ID_STRING, MU_SPIRV_STRING, 0 } },
+	{ "OpSourceExtension",    4,  2, 0,                       { MU_SPIRV_STRING, 0 } },
+	{ "OpName",               5,  3, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_STRING, 0 } },
+	{ "OpMemberName",         6,  4, 0,                       { MU_SPIRV_ID_TYPE, MU_SPIRV_UINT32, MU_SPIRV_STRING, 0 } },
+	{ "OpString",             7,  3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_STRING, 0 } },
+	{ "OpLine",               8,  4, 0,                       { MU_SPIRV_ID_STRING, MU_SPIRV_UINT32, MU_SPIRV_UINT32, 0 } },
 	// No 9
-	{ "OpExtension",       10, 2, 0,                   { MU_SPIRV_STRING, 0 } },
-	{ "OpExtInstImport",   11, 3, 0,                   { MU_SPIRV_ID_RESULT, MU_SPIRV_STRING, 0 } },
-	{ "OpExtInst",         12, 5, MU_SPIRV_ID_OPERAND, { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_UINT32, 0 } },
+	{ "OpExtension",          10, 2, 0,                       { MU_SPIRV_STRING, 0 } },
+	{ "OpExtInstImport",      11, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_STRING, 0 } },
+	{ "OpExtInst",            12, 5, MU_SPIRV_ID_OPERAND,     { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_UINT32, 0 } },
 	// No 13
-	{ "OpMemoryModel",     14, 3, 0,                   { MU_SPIRV_ADDRESSING_MODEL, MU_SPIRV_MEMORY_MODEL, 0 } },
-	{ "OpEntryPoint",      15, 4, MU_SPIRV_ID_TARGET,  { MU_SPIRV_EXECUTION_MODEL, MU_SPIRV_ID_TARGET, MU_SPIRV_STRING, 0 } },
+	{ "OpMemoryModel",        14, 3, 0,                       { MU_SPIRV_ADDRESSING_MODEL, MU_SPIRV_MEMORY_MODEL, 0 } },
+	{ "OpEntryPoint",         15, 4, MU_SPIRV_ID_TARGET,      { MU_SPIRV_EXECUTION_MODEL, MU_SPIRV_ID_TARGET, MU_SPIRV_STRING, 0 } },
+	{ "OpExecutionMode",      16, 3, MU_SPIRV_EXECUTION_MODE, { MU_SPIRV_ID_TARGET, MU_SPIRV_EXECUTION_MODE, 0 } },
+	{ "OpCapability",         17, 2, 0,                       { MU_SPIRV_CAPABILITY, 0 } },
+	// No 18
+	{ "OpTypeVoid",           19, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeBool",           20, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeInt",            21, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_UINT32, MU_SPIRV_SIGN, 0 } },
+	{ "OpTypeFloat",          22, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_UINT32, 0 } },
+	{ "OpTypeVector",         23, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_UINT32, 0 } },
+	{ "OpTypeMatrix",         24, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_UINT32, 0 } },
+	{ "OpTypeImage",          25, 9, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_DIM, MU_SPIRV_UINT32, MU_SPIRV_UINT32, MU_SPIRV_UINT32, MU_SPIRV_UINT32, MU_SPIRV_IMAGE_FORMAT, MU_SPIRV_ACCESS_QUALIFIER, 0 } },
+	{ "OpTypeSampler",        26, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeSampledImage",   27, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpTypeArray",          28, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpTypeRuntimeArray",   29, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpTypeStruct",         30, 2, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeOpaque",         31, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_STRING, 0 } },
+	{ "OpTypePointer",        32, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_STORAGE_CLASS, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpTypeFunction",       33, 3, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpTypeEvent",          34, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeDeviceEvent",    35, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeReserveId",      36, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeQueue",          37, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypePipe",           38, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ACCESS_QUALIFIER, 0 } },
+	{ "OpTypeForwardPointer", 39, 3, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_STORAGE_CLASS, 0 } },
+	// No 40
+	{ "OpConstantTrue",       41, 3, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpConstantFalse",      42, 3, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpConstant",           43, 4, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_ID_RESULT, MU_SPIRV_LITERAL_VALUE, 0 } },
+	{ "OpConstantComposite",  44, 3, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_TARGET, MU_SPIRV_ID_RESULT, 0 } },
 
 	0
 };
@@ -1063,6 +1140,121 @@ uint32_m muSAVE_get_word_be(const char* b) {
 uint16_m muSAVE_get_halfword(const char* b) {
 	const unsigned char* ub = (const unsigned char*)b;
 	return ub[0] + (ub[1] << 8);
+}
+
+muString muSAVE_insert_type_info(muString str, const char* binary, size_m len, uint32_m id, unsigned char* data, size_m datalen) {
+	for (size_m i = 20; i < len;) {
+		uint16_m instruction = muSAVE_get_halfword(&binary[i]);
+		uint16_m step = muSAVE_get_halfword(&binary[i+2]);
+		size_m j = muSAVE_get_instruction_index(instruction);
+		if (j != MU_SIZE_MAX) {
+			/*MU_SPIRV_BASSERT(
+				(mu_global_SPIRV_instructions[j].indefinite_type == 0 && step == mu_global_SPIRV_instructions[j].min_word_count) || 
+				(mu_global_SPIRV_instructions[j].indefinite_type != 0)
+			)*/
+			switch (mu_global_SPIRV_instructions[j].opcode) {
+				default: { } break;
+				// bool
+				case 20: {
+					if (muSAVE_get_word(&binary[i+4]) == id) {
+						for (size_m k = 0; k < datalen; k++) {
+							if (data[k] != 0) {
+								str = mu_string_insert(str, "True", mu_string_strlen(str));
+								return str;
+							}
+						}
+						str = mu_string_insert(str, "False", mu_string_strlen(str));
+						return str;
+					}
+				} break;
+				// int (this code is pretty messy but it gets the job done)
+				case 21: {
+					switch (datalen) {
+						default: {
+							if (muSAVE_get_word(&binary[i+4]) == id) {
+								str = mu_string_insert(str, "UnknownValue", mu_string_strlen(str));
+								return str;
+							}
+						} break;
+						case 1: {
+							if (muSAVE_get_word(&binary[i+4]) == id) {
+								if (muSAVE_get_word(&binary[i+12]) == 0) {
+									str = mu_string_insert_integer(str, *(uint8_m*)data, mu_string_strlen(str));
+								} else if (muSAVE_get_word(&binary[i+12]) == 1) {
+									str = mu_string_insert_integer(str, *(int8_m*)data, mu_string_strlen(str));
+								} else {
+									str = mu_string_insert(str, "UnknownValue", mu_string_strlen(str));
+								}
+								return str;
+							}
+						} break;
+						case 2: {
+							if (muSAVE_get_word(&binary[i+4]) == id) {
+								if (muSAVE_get_word(&binary[i+12]) == 0) {
+									str = mu_string_insert_integer(str, *(uint16_m*)data, mu_string_strlen(str));
+								} else if (muSAVE_get_word(&binary[i+12]) == 1) {
+									str = mu_string_insert_integer(str, *(int16_m*)data, mu_string_strlen(str));
+								} else {
+									str = mu_string_insert(str, "UnknownValue", mu_string_strlen(str));
+								}
+								return str;
+							}
+						} break;
+						case 4: {
+							if (muSAVE_get_word(&binary[i+4]) == id) {
+								if (muSAVE_get_word(&binary[i+12]) == 0) {
+									str = mu_string_insert_integer(str, *(uint32_m*)data, mu_string_strlen(str));
+								} else if (muSAVE_get_word(&binary[i+12]) == 1) {
+									str = mu_string_insert_integer(str, *(int32_m*)data, mu_string_strlen(str));
+								} else {
+									str = mu_string_insert(str, "UnknownValue", mu_string_strlen(str));
+								}
+								return str;
+							}
+						} break;
+						case 8: {
+							if (muSAVE_get_word(&binary[i+4]) == id) {
+								if (muSAVE_get_word(&binary[i+12]) == 0) {
+									str = mu_string_insert_integer(str, *(uint64_m*)data, mu_string_strlen(str));
+								} else if (muSAVE_get_word(&binary[i+12]) == 1) {
+									str = mu_string_insert_integer(str, *(int64_m*)data, mu_string_strlen(str));
+								} else {
+									str = mu_string_insert(str, "UnknownValue", mu_string_strlen(str));
+								}
+								return str;
+							}
+						} break;
+					}
+				} break;
+				case 22: {
+					if (muSAVE_get_word(&binary[i+4]) == id) {
+						if (muSAVE_get_word(&binary[i+8]) == 32) {
+							float fdata = 0.f;
+							if (datalen <= 4) {
+								mu_memcpy(&fdata, data, datalen);
+							}
+							str = mu_string_insert_float(str, fdata, 4, mu_string_strlen(str));
+						} else if (datalen == 8) {
+							double ddata = 0.f;
+							if (datalen <= 8) {
+								mu_memcpy(&ddata, data, datalen);
+							}
+							str = mu_string_insert_float(str, ddata, 8, mu_string_strlen(str));
+						} else {
+							str = mu_string_insert(str, "UnknownValue", mu_string_strlen(str));
+						}
+						return str;
+					}
+				} break;
+			}
+		}
+
+		// step forward
+		i += step * 4;
+	}
+
+	str = mu_string_insert(str, "UnknownValue", mu_string_strlen(str));
+	return str;
 }
 
 /* enum name functions */
@@ -2656,7 +2848,7 @@ uint16_m muSAVE_get_halfword(const char* b) {
 
 /* instruction stuff */
 
-muString muSAVE_insert_instruction(muString str, size_m i, size_m j, uint16_m step, const char* binary, muBool print_newline) {
+muString muSAVE_insert_instruction(muString str, size_m i, size_m j, uint16_m step, const char* binary, size_m binarylen, muBool print_newline) {
 	size_m beg_str_i = mu_string_strlen(str) + 1;
 	if (j == MU_SIZE_MAX) {
 		if (print_newline) {
@@ -2670,6 +2862,7 @@ muString muSAVE_insert_instruction(muString str, size_m i, size_m j, uint16_m st
 		}
 		str = mu_string_insert(str, (char*)mu_global_SPIRV_instructions[j].name, mu_string_strlen(str));
 		muBool reached_indefinite = MU_FALSE;
+		uint32_m latest_result_target = 0;
 		for (size_m k = 0; k < step-1; k++) {
 			muSPIRVType type;
 			if (reached_indefinite == MU_TRUE) {
@@ -2678,6 +2871,7 @@ muString muSAVE_insert_instruction(muString str, size_m i, size_m j, uint16_m st
 				type = mu_global_SPIRV_instructions[j].operands[k];
 			}
 			if (type == 0) {
+				str = mu_string_insert(str, " {", mu_string_strlen(str));
 				reached_indefinite = MU_TRUE;
 				type = mu_global_SPIRV_instructions[j].indefinite_type;
 				//break;
@@ -2702,9 +2896,15 @@ muString muSAVE_insert_instruction(muString str, size_m i, size_m j, uint16_m st
 					k += (mu_strlen(&binary[i+4+(k*4)])) / 4;
 				} break;
 
+				case MU_SPIRV_LITERAL_VALUE: {
+					str = mu_string_insert(str, " ", mu_string_strlen(str));
+					str = muSAVE_insert_type_info(str, binary, binarylen, latest_result_target, (unsigned char*)&binary[i+4+((k*4))], (step-k)*2);
+				} break;
+
 				case MU_SPIRV_ID_TARGET: {
 					str = mu_string_insert(str, " %", mu_string_strlen(str));
 					str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((k*4))]), mu_string_strlen(str));
+					latest_result_target = muSAVE_get_word(&binary[i+4+((k*4))]);
 				} break;
 
 				case MU_SPIRV_ID_TYPE: {
@@ -2730,6 +2930,16 @@ muString muSAVE_insert_instruction(muString str, size_m i, size_m j, uint16_m st
 				case MU_SPIRV_ID_OPERAND: {
 					str = mu_string_insert(str, " %", mu_string_strlen(str));
 					str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((k*4))]), mu_string_strlen(str));
+				} break;
+
+				case MU_SPIRV_SIGN: {
+					if (muSAVE_get_word(&binary[i+4+((k*4))]) == 0) {
+						str = mu_string_insert(str, " Unsigned", mu_string_strlen(str));
+					} else if (muSAVE_get_word(&binary[i+4+((k*4))]) == 1) {
+						str = mu_string_insert(str, " Signed", mu_string_strlen(str));
+					} else {
+						str = mu_string_insert(str, " UnknownSign", mu_string_strlen(str));
+					}
 				} break;
 
 				case MU_SPIRV_SOURCE_LANGUAGE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_SourceLanguage(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
@@ -2773,6 +2983,12 @@ muString muSAVE_insert_instruction(muString str, size_m i, size_m j, uint16_m st
 				case MU_SPIRV_OVERFLOW_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_OverflowMode(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
 				case MU_SPIRV_PACKED_VECTOR_FORMAT: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_PackedVectorFormat(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
 			}
+			if (reached_indefinite && k < step-2) {
+				str = mu_string_insert(str, ",", mu_string_strlen(str));
+			}
+		}
+		if (reached_indefinite) {
+			str = mu_string_insert(str, " }", mu_string_strlen(str));
 		}
 	}
 	return str;
@@ -2849,7 +3065,7 @@ muString mu_spirv_binary_to_assembly(const char* binary, size_m len) {
 		}
 
 		// spit out info
-		str = muSAVE_insert_instruction(str, i, j, step, binary, MU_TRUE);
+		str = muSAVE_insert_instruction(str, i, j, step, binary, len, MU_TRUE);
 
 		// step forward
 		i += step * 4;
