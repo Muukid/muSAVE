@@ -241,6 +241,7 @@ enum muSPIRVType {
 	MU_SPIRV_UINT32,
 	MU_SPIRV_STRING,
 	MU_SPIRV_LITERAL_VALUE,
+	MU_SPIRV_OPCODE,
 
 	MU_SPIRV_ID_TARGET,
 	MU_SPIRV_ID_TYPE,
@@ -1068,51 +1069,78 @@ extern "C" { // }
 /* instruction map */
 
 muSPIRVInstruction mu_global_SPIRV_instructions[MU_SPIRV_INSTRUCTION_COUNT] = {
-	{ "OpNop",                0,  1, 0,                       { 0 } },
-	{ "OpUndef",              1,  3, 0,                       { MU_SPIRV_ID_TYPE, MU_SPIRV_ID_RESULT, 0 } },
-	{ "OpSourceContinued",    2,  2, 0,                       { MU_SPIRV_STRING, 0 } },
-	{ "OpSource",             3,  3, 0,                       { MU_SPIRV_SOURCE_LANGUAGE, MU_SPIRV_UINT32, MU_SPIRV_ID_STRING, MU_SPIRV_STRING, 0 } },
-	{ "OpSourceExtension",    4,  2, 0,                       { MU_SPIRV_STRING, 0 } },
-	{ "OpName",               5,  3, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_STRING, 0 } },
-	{ "OpMemberName",         6,  4, 0,                       { MU_SPIRV_ID_TYPE, MU_SPIRV_UINT32, MU_SPIRV_STRING, 0 } },
-	{ "OpString",             7,  3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_STRING, 0 } },
-	{ "OpLine",               8,  4, 0,                       { MU_SPIRV_ID_STRING, MU_SPIRV_UINT32, MU_SPIRV_UINT32, 0 } },
+	{ "OpNop",                    0,  1, 0,                       { 0 } },
+	{ "OpUndef",                  1,  3, 0,                       { MU_SPIRV_ID_TYPE, MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpSourceContinued",        2,  2, 0,                       { MU_SPIRV_STRING, 0 } },
+	{ "OpSource",                 3,  3, 0,                       { MU_SPIRV_SOURCE_LANGUAGE, MU_SPIRV_UINT32, MU_SPIRV_ID_STRING, MU_SPIRV_STRING, 0 } },
+	{ "OpSourceExtension",        4,  2, 0,                       { MU_SPIRV_STRING, 0 } },
+	{ "OpName",                   5,  3, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_STRING, 0 } },
+	{ "OpMemberName",             6,  4, 0,                       { MU_SPIRV_ID_TYPE, MU_SPIRV_UINT32, MU_SPIRV_STRING, 0 } },
+	{ "OpString",                 7,  3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_STRING, 0 } },
+	{ "OpLine",                   8,  4, 0,                       { MU_SPIRV_ID_STRING, MU_SPIRV_UINT32, MU_SPIRV_UINT32, 0 } },
 	// No 9
-	{ "OpExtension",          10, 2, 0,                       { MU_SPIRV_STRING, 0 } },
-	{ "OpExtInstImport",      11, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_STRING, 0 } },
-	{ "OpExtInst",            12, 5, MU_SPIRV_ID_OPERAND,     { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_UINT32, 0 } },
+	{ "OpExtension",              10, 2, 0,                       { MU_SPIRV_STRING, 0 } },
+	{ "OpExtInstImport",          11, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_STRING, 0 } },
+	{ "OpExtInst",                12, 5, MU_SPIRV_ID_OPERAND,     { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_UINT32, 0 } },
 	// No 13
-	{ "OpMemoryModel",        14, 3, 0,                       { MU_SPIRV_ADDRESSING_MODEL, MU_SPIRV_MEMORY_MODEL, 0 } },
-	{ "OpEntryPoint",         15, 4, MU_SPIRV_ID_TARGET,      { MU_SPIRV_EXECUTION_MODEL, MU_SPIRV_ID_TARGET, MU_SPIRV_STRING, 0 } },
-	{ "OpExecutionMode",      16, 3, MU_SPIRV_EXECUTION_MODE, { MU_SPIRV_ID_TARGET, MU_SPIRV_EXECUTION_MODE, 0 } },
-	{ "OpCapability",         17, 2, 0,                       { MU_SPIRV_CAPABILITY, 0 } },
+	{ "OpMemoryModel",            14, 3, 0,                       { MU_SPIRV_ADDRESSING_MODEL, MU_SPIRV_MEMORY_MODEL, 0 } },
+	{ "OpEntryPoint",             15, 4, MU_SPIRV_ID_TARGET,      { MU_SPIRV_EXECUTION_MODEL, MU_SPIRV_ID_TARGET, MU_SPIRV_STRING, 0 } },
+	{ "OpExecutionMode",          16, 3, MU_SPIRV_EXECUTION_MODE, { MU_SPIRV_ID_TARGET, MU_SPIRV_EXECUTION_MODE, 0 } },
+	{ "OpCapability",             17, 2, 0,                       { MU_SPIRV_CAPABILITY, 0 } },
 	// No 18
-	{ "OpTypeVoid",           19, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
-	{ "OpTypeBool",           20, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
-	{ "OpTypeInt",            21, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_UINT32, MU_SPIRV_SIGN, 0 } },
-	{ "OpTypeFloat",          22, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_UINT32, 0 } },
-	{ "OpTypeVector",         23, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_UINT32, 0 } },
-	{ "OpTypeMatrix",         24, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_UINT32, 0 } },
-	{ "OpTypeImage",          25, 9, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_DIM, MU_SPIRV_UINT32, MU_SPIRV_UINT32, MU_SPIRV_UINT32, MU_SPIRV_UINT32, MU_SPIRV_IMAGE_FORMAT, MU_SPIRV_ACCESS_QUALIFIER, 0 } },
-	{ "OpTypeSampler",        26, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
-	{ "OpTypeSampledImage",   27, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, 0 } },
-	{ "OpTypeArray",          28, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_ID_TARGET, 0 } },
-	{ "OpTypeRuntimeArray",   29, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, 0 } },
-	{ "OpTypeStruct",         30, 2, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT, 0 } },
-	{ "OpTypeOpaque",         31, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_STRING, 0 } },
-	{ "OpTypePointer",        32, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_STORAGE_CLASS, MU_SPIRV_ID_TARGET, 0 } },
-	{ "OpTypeFunction",       33, 3, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, 0 } },
-	{ "OpTypeEvent",          34, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
-	{ "OpTypeDeviceEvent",    35, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
-	{ "OpTypeReserveId",      36, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
-	{ "OpTypeQueue",          37, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
-	{ "OpTypePipe",           38, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ACCESS_QUALIFIER, 0 } },
-	{ "OpTypeForwardPointer", 39, 3, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_STORAGE_CLASS, 0 } },
+	{ "OpTypeVoid",               19, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeBool",               20, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeInt",                21, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_UINT32, MU_SPIRV_SIGN, 0 } },
+	{ "OpTypeFloat",              22, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_UINT32, 0 } },
+	{ "OpTypeVector",             23, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_UINT32, 0 } },
+	{ "OpTypeMatrix",             24, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_UINT32, 0 } },
+	{ "OpTypeImage",              25, 9, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_DIM, MU_SPIRV_UINT32, MU_SPIRV_UINT32, MU_SPIRV_UINT32, MU_SPIRV_UINT32, MU_SPIRV_IMAGE_FORMAT, MU_SPIRV_ACCESS_QUALIFIER, 0 } },
+	{ "OpTypeSampler",            26, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeSampledImage",       27, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpTypeArray",              28, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpTypeRuntimeArray",       29, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpTypeStruct",             30, 2, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeOpaque",             31, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_STRING, 0 } },
+	{ "OpTypePointer",            32, 4, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_STORAGE_CLASS, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpTypeFunction",           33, 3, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpTypeEvent",              34, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeDeviceEvent",        35, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeReserveId",          36, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypeQueue",              37, 2, 0,                       { MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpTypePipe",               38, 3, 0,                       { MU_SPIRV_ID_RESULT, MU_SPIRV_ACCESS_QUALIFIER, 0 } },
+	{ "OpTypeForwardPointer",     39, 3, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_STORAGE_CLASS, 0 } },
 	// No 40
-	{ "OpConstantTrue",       41, 3, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_ID_RESULT, 0 } },
-	{ "OpConstantFalse",      42, 3, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_ID_RESULT, 0 } },
-	{ "OpConstant",           43, 4, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_ID_RESULT, MU_SPIRV_LITERAL_VALUE, 0 } },
-	{ "OpConstantComposite",  44, 3, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_TARGET, MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpConstantTrue",           41, 3, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpConstantFalse",          42, 3, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpConstant",               43, 4, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_LITERAL_VALUE, 0 } },
+	{ "OpConstantComposite",      44, 3, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpConstantSampler",        45, 6, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_SAMPLER_ADDRESSING_MODE, MU_SPIRV_UINT32, MU_SPIRV_SAMPLER_FILTER_MODE, 0 } },
+	{ "OpConstantNull",           46, 3, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, 0 } },
+	// No 47
+	{ "OpSpecConstantTrue",       48, 3, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpSpecConstantFalse",      49, 3, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpSpecConstant",           50, 4, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_LITERAL_VALUE, 0 } },
+	{ "OpSpecConstantComposite",  51, 3, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpSpecConstantOp",         52, 4, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_OPCODE, 0 } },
+	// No 53
+	{ "OpFunction",               54, 5, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_FUNCTION_CONTROL, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpFunctionParameter",      55, 3, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, 0 } },
+	{ "OpFunctionEnd",            56, 1, 0,                       { 0 } },
+	{ "OpFunctionCall",           57, 4, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, 0 } },
+	// No 58
+	{ "OpVariable",               59, 4, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_STORAGE_CLASS, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpImageTexelPointer",      60, 6, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_ID_TARGET, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpLoad",                   61, 4, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_MEMORY_OPERANDS, 0 } },
+	{ "OpStore",                  62, 3, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_ID_TARGET, MU_SPIRV_MEMORY_OPERANDS, 0 } },
+	{ "OpCopyMemory",             63, 3, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_ID_TARGET, MU_SPIRV_MEMORY_OPERANDS, MU_SPIRV_MEMORY_OPERANDS, 0 } },
+	{ "OpCopyMemorySized",        64, 4, 0,                       { MU_SPIRV_ID_TARGET, MU_SPIRV_ID_TARGET, MU_SPIRV_ID_TARGET, MU_SPIRV_MEMORY_OPERANDS, MU_SPIRV_MEMORY_OPERANDS, 0 } },
+	{ "OpAccessChain",            65, 4, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpInBoundsAccessChain",    66, 4, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpPtrAccessChain",         67, 5, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpArrayLength",            68, 5, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_UINT32, 0 } },
+	{ "OpGenericPtrMemSemantics", 69, 4, 0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpInBoundsPtrAccessChain", 70, 5, MU_SPIRV_ID_TARGET,      { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_ID_TARGET, 0 } },
+	{ "OpDecorate",               71, 3, MU_SPIRV_DECORATION,     { MU_SPIRV_ID_TARGET, 0 } },
 
 	0
 };
@@ -1228,7 +1256,7 @@ muString muSAVE_insert_type_info(muString str, const char* binary, size_m len, u
 				} break;
 				case 22: {
 					if (muSAVE_get_word(&binary[i+4]) == id) {
-						if (muSAVE_get_word(&binary[i+8]) == 32) {
+ 						if (muSAVE_get_word(&binary[i+8]) == 32) {
 							float fdata = 0.f;
 							if (datalen <= 4) {
 								mu_memcpy(&fdata, data, datalen);
@@ -1256,6 +1284,8 @@ muString muSAVE_insert_type_info(muString str, const char* binary, size_m len, u
 	str = mu_string_insert(str, "UnknownValue", mu_string_strlen(str));
 	return str;
 }
+
+muString muSAVE_insert_instruction_by_type(muString str, muSPIRVType type, const char* binary, size_m binarylen, size_m i, size_m* k, size_m step, uint32_m* latest_result_target, size_m* beg_str_i);
 
 /* enum name functions */
 
@@ -1313,10 +1343,14 @@ muString muSAVE_insert_type_info(muString str, const char* binary, size_m len, u
 		}
 	}
 
-	muString muSAVE_insert_ExecutionMode(muString str, uint32_m n) {
-		switch (n) {
+	muString muSAVE_insert_ExecutionMode(muString str, muSPIRVType type, const char* binary, size_m binarylen, size_m i, size_m* k, size_m step, uint32_m* latest_result_target, size_m* beg_str_i) {
+		switch (muSAVE_get_word(&binary[i+4+((*k*4))])) {
 			default: return mu_string_insert(str, "UnknownExecutionMode", mu_string_strlen(str)); break;
-			case 0: return mu_string_insert(str, "Invocations", mu_string_strlen(str)); break;
+			case 0: {
+				str = mu_string_insert(str, "Invocations ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
 			case 1: return mu_string_insert(str, "SpacingEqual", mu_string_strlen(str)); break;
 			case 2: return mu_string_insert(str, "SpacingFractionalEven", mu_string_strlen(str)); break;
 			case 3: return mu_string_insert(str, "SpacingFractionalOdd", mu_string_strlen(str)); break;
@@ -1332,8 +1366,28 @@ muString muSAVE_insert_type_info(muString str, const char* binary, size_m len, u
 			case 14: return mu_string_insert(str, "DepthGreater", mu_string_strlen(str)); break;
 			case 15: return mu_string_insert(str, "DepthLess", mu_string_strlen(str)); break;
 			case 16: return mu_string_insert(str, "DepthUnchanged", mu_string_strlen(str)); break;
-			case 17: return mu_string_insert(str, "LocalSize", mu_string_strlen(str)); break;
-			case 18: return mu_string_insert(str, "LocalSizeHint", mu_string_strlen(str)); break;
+			case 17: {
+				str = mu_string_insert(str, "LocalSize ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 18: {
+				str = mu_string_insert(str, "LocalSizeHint ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
 			case 19: return mu_string_insert(str, "InputPoints", mu_string_strlen(str)); break;
 			case 20: return mu_string_insert(str, "InputLines", mu_string_strlen(str)); break;
 			case 21: return mu_string_insert(str, "InputLinesAdjacency", mu_string_strlen(str)); break;
@@ -1341,26 +1395,83 @@ muString muSAVE_insert_type_info(muString str, const char* binary, size_m len, u
 			case 23: return mu_string_insert(str, "InputTrianglesAdjacency", mu_string_strlen(str)); break;
 			case 24: return mu_string_insert(str, "Quads", mu_string_strlen(str)); break;
 			case 25: return mu_string_insert(str, "Isolines", mu_string_strlen(str)); break;
-			case 26: return mu_string_insert(str, "OutputVertices", mu_string_strlen(str)); break;
+			case 26: {
+				str = mu_string_insert(str, "OutputVertices ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
 			case 27: return mu_string_insert(str, "OutputPoints", mu_string_strlen(str)); break;
 			case 28: return mu_string_insert(str, "OutputLineStrip", mu_string_strlen(str)); break;
 			case 29: return mu_string_insert(str, "OutputTriangleStrip", mu_string_strlen(str)); break;
+			// @TODO figure this out
 			case 30: return mu_string_insert(str, "VecTypeHint", mu_string_strlen(str)); break;
 			case 31: return mu_string_insert(str, "ContractionOff", mu_string_strlen(str)); break;
 			case 33: return mu_string_insert(str, "Initializer", mu_string_strlen(str)); break;
 			case 34: return mu_string_insert(str, "Finalizer", mu_string_strlen(str)); break;
-			case 35: return mu_string_insert(str, "SubgroupSize", mu_string_strlen(str)); break;
-			case 36: return mu_string_insert(str, "SubgroupsPerWorkgroup", mu_string_strlen(str)); break;
-			case 37: return mu_string_insert(str, "SubgroupsPerWorkgroupId", mu_string_strlen(str)); break;
-			case 38: return mu_string_insert(str, "LocalSizeId", mu_string_strlen(str)); break;
-			case 39: return mu_string_insert(str, "LocalSizeHintId", mu_string_strlen(str)); break;
+			case 35: {
+				str = mu_string_insert(str, "SubgroupSize ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 36: {
+				str = mu_string_insert(str, "SubgroupsPerWorkgroup ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 37: {
+				str = mu_string_insert(str, "SubgroupsPerWorkgroupId ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_ID_TARGET, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 38: {
+				str = mu_string_insert(str, "LocalSizeId ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_ID_TARGET, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_ID_TARGET, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_ID_TARGET, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 39: {
+				str = mu_string_insert(str, "LocalSizeHintId ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_ID_TARGET, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_ID_TARGET, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_ID_TARGET, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
 			case 4421: return mu_string_insert(str, "SubgroupUniformControlFlow", mu_string_strlen(str)); break;
 			case 4446: return mu_string_insert(str, "PostDepthCoverage", mu_string_strlen(str)); break;
-			case 4459: return mu_string_insert(str, "DenormPreserve", mu_string_strlen(str)); break;
-			case 4460: return mu_string_insert(str, "DenormFlushToZero", mu_string_strlen(str)); break;
-			case 4461: return mu_string_insert(str, "SignedZeroInfNanPreserve", mu_string_strlen(str)); break;
-			case 4462: return mu_string_insert(str, "RoundingModeRTE", mu_string_strlen(str)); break;
-			case 4463: return mu_string_insert(str, "RoundingModeRTZ", mu_string_strlen(str)); break;
+			case 4459: {
+				str = mu_string_insert(str, "DenormPreserve ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 4460: {
+				str = mu_string_insert(str, "DenormFlushToZero ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 4461: {
+				str = mu_string_insert(str, "SignedZeroInfNanPreserve ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 4462: {
+				str = mu_string_insert(str, "RoundingModeRTE ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 4463: {
+				str = mu_string_insert(str, "RoundingModeRTZ ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
 			case 5017: return mu_string_insert(str, "EarlyAndLateFragmentTests", mu_string_strlen(str)); break;
 			case 5027: return mu_string_insert(str, "StencilRefReplacing", mu_string_strlen(str)); break;
 			case 5079: return mu_string_insert(str, "StencilRefUnchangedFront", mu_string_strlen(str)); break;
@@ -1370,7 +1481,11 @@ muString muSAVE_insert_type_info(muString str, const char* binary, size_m len, u
 			case 5083: return mu_string_insert(str, "StencilRefGreaterBack", mu_string_strlen(str)); break;
 			case 5084: return mu_string_insert(str, "StencilRefLessBack", mu_string_strlen(str)); break;
 			case 5269: return mu_string_insert(str, "OutputLines", mu_string_strlen(str)); break;
-			case 5270: return mu_string_insert(str, "OutputPrimitives", mu_string_strlen(str)); break;
+			case 5270: {
+				str = mu_string_insert(str, "OutputPrimitives ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
 			case 5289: return mu_string_insert(str, "DerivativeGroupQuads", mu_string_strlen(str)); break;
 			case 5290: return mu_string_insert(str, "DerivativeGroupLinear", mu_string_strlen(str)); break;
 			case 5298: return mu_string_insert(str, "OutputTriangles", mu_string_strlen(str)); break;
@@ -1380,17 +1495,64 @@ muString muSAVE_insert_type_info(muString str, const char* binary, size_m len, u
 			case 5369: return mu_string_insert(str, "SampleInterlockUnordered", mu_string_strlen(str)); break;
 			case 5370: return mu_string_insert(str, "ShadingRateInterlockOrdered", mu_string_strlen(str)); break;
 			case 5371: return mu_string_insert(str, "ShadingRateInterlockUnordered", mu_string_strlen(str)); break;
-			case 5618: return mu_string_insert(str, "SharedLocalMemorySize", mu_string_strlen(str)); break;
-			case 5620: return mu_string_insert(str, "RoundingModeRTP", mu_string_strlen(str)); break;
-			case 5621: return mu_string_insert(str, "RoundingModeRTN", mu_string_strlen(str)); break;
-			case 5622: return mu_string_insert(str, "FloatingPointModeALT", mu_string_strlen(str)); break;
-			case 5623: return mu_string_insert(str, "FloatingPointModeIEEE", mu_string_strlen(str)); break;
-			case 5893: return mu_string_insert(str, "MaxWorkgroupSize", mu_string_strlen(str)); break;
-			case 5894: return mu_string_insert(str, "MaxWorkDim", mu_string_strlen(str)); break;
+			case 5618: {
+				str = mu_string_insert(str, "SharedLocalMemorySize ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5620: {
+				str = mu_string_insert(str, "RoundingModeRTP ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5621: {
+				str = mu_string_insert(str, "RoundingModeRTN ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5622: {
+				str = mu_string_insert(str, "FloatingPointModeALT ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5623: {
+				str = mu_string_insert(str, "FloatingPointModeIEEE ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5893: {
+				str = mu_string_insert(str, "MaxWorkgroupSize ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				*k += 1;
+				muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5894: {
+				str = mu_string_insert(str, "MaxWorkDim ", mu_string_strlen(str));
+				*k += 1;
+				// Might be some weird half of bits width and other half height, doesn't really matter
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
 			case 5895: return mu_string_insert(str, "NoGlobalOffset", mu_string_strlen(str)); break;
-			case 5896: return mu_string_insert(str, "NumSIMDWorkitems", mu_string_strlen(str)); break;
-			case 5903: return mu_string_insert(str, "SchedulerTargetFmaxMhz", mu_string_strlen(str)); break;
-			case 6417: return mu_string_insert(str, "NamedBarrierCount", mu_string_strlen(str)); break;
+			case 5896: {
+				str = mu_string_insert(str, "NumSIMDWorkitems ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5903: {
+				str = mu_string_insert(str, "SchedulerTargetFmaxMhz ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 6417: {
+				str = mu_string_insert(str, "NamedBarrierCount ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
 		}
 	}
 
@@ -1788,117 +1950,6 @@ muString muSAVE_insert_type_info(muString str, const char* binary, size_m len, u
 		}
 	}
 
-	muString muSAVE_insert_Decoration(muString str, uint32_m n) {
-		switch (n) {
-			default: return mu_string_insert(str, "UnknownDecoration", mu_string_strlen(str)); break;
-			case 0: return mu_string_insert(str, "RelaxedPrecision", mu_string_strlen(str)); break;
-			case 1: return mu_string_insert(str, "SpecId", mu_string_strlen(str)); break;
-			case 2: return mu_string_insert(str, "Block", mu_string_strlen(str)); break;
-			case 3: return mu_string_insert(str, "BufferBlock", mu_string_strlen(str)); break;
-			case 4: return mu_string_insert(str, "RowMajor", mu_string_strlen(str)); break;
-			case 5: return mu_string_insert(str, "ColMajor", mu_string_strlen(str)); break;
-			case 6: return mu_string_insert(str, "ArrayStride", mu_string_strlen(str)); break;
-			case 7: return mu_string_insert(str, "MatrixStride", mu_string_strlen(str)); break;
-			case 8: return mu_string_insert(str, "GLSLShared", mu_string_strlen(str)); break;
-			case 9: return mu_string_insert(str, "GLSLPacked", mu_string_strlen(str)); break;
-			case 10: return mu_string_insert(str, "CPacked", mu_string_strlen(str)); break;
-			case 11: return mu_string_insert(str, "BuiltIn", mu_string_strlen(str)); break;
-			case 13: return mu_string_insert(str, "NoPerspective", mu_string_strlen(str)); break;
-			case 14: return mu_string_insert(str, "Flat", mu_string_strlen(str)); break;
-			case 15: return mu_string_insert(str, "Patch", mu_string_strlen(str)); break;
-			case 16: return mu_string_insert(str, "Centroid", mu_string_strlen(str)); break;
-			case 17: return mu_string_insert(str, "Sample", mu_string_strlen(str)); break;
-			case 18: return mu_string_insert(str, "Invariant", mu_string_strlen(str)); break;
-			case 19: return mu_string_insert(str, "Restrict", mu_string_strlen(str)); break;
-			case 20: return mu_string_insert(str, "Aliased", mu_string_strlen(str)); break;
-			case 21: return mu_string_insert(str, "Volatile", mu_string_strlen(str)); break;
-			case 22: return mu_string_insert(str, "Constant", mu_string_strlen(str)); break;
-			case 23: return mu_string_insert(str, "Coherent", mu_string_strlen(str)); break;
-			case 24: return mu_string_insert(str, "NonWritable", mu_string_strlen(str)); break;
-			case 25: return mu_string_insert(str, "NonReadable", mu_string_strlen(str)); break;
-			case 26: return mu_string_insert(str, "Uniform", mu_string_strlen(str)); break;
-			case 27: return mu_string_insert(str, "UniformId", mu_string_strlen(str)); break;
-			case 28: return mu_string_insert(str, "SaturatedConversion", mu_string_strlen(str)); break;
-			case 29: return mu_string_insert(str, "Stream", mu_string_strlen(str)); break;
-			case 30: return mu_string_insert(str, "Location", mu_string_strlen(str)); break;
-			case 31: return mu_string_insert(str, "Component", mu_string_strlen(str)); break;
-			case 32: return mu_string_insert(str, "Index", mu_string_strlen(str)); break;
-			case 33: return mu_string_insert(str, "Binding", mu_string_strlen(str)); break;
-			case 34: return mu_string_insert(str, "DescriptorSet", mu_string_strlen(str)); break;
-			case 35: return mu_string_insert(str, "Offset", mu_string_strlen(str)); break;
-			case 36: return mu_string_insert(str, "XfbBuffer", mu_string_strlen(str)); break;
-			case 37: return mu_string_insert(str, "XfbStride", mu_string_strlen(str)); break;
-			case 38: return mu_string_insert(str, "FuncParamAttr", mu_string_strlen(str)); break;
-			case 39: return mu_string_insert(str, "FPRoundingMode", mu_string_strlen(str)); break;
-			case 40: return mu_string_insert(str, "FPFastMathMode", mu_string_strlen(str)); break;
-			case 41: return mu_string_insert(str, "LinkageAttributes", mu_string_strlen(str)); break;
-			case 42: return mu_string_insert(str, "NoContraction", mu_string_strlen(str)); break;
-			case 43: return mu_string_insert(str, "InputAttachmentIndex", mu_string_strlen(str)); break;
-			case 44: return mu_string_insert(str, "Alignment", mu_string_strlen(str)); break;
-			case 45: return mu_string_insert(str, "MaxByteOffset", mu_string_strlen(str)); break;
-			case 46: return mu_string_insert(str, "AlignmentId", mu_string_strlen(str)); break;
-			case 47: return mu_string_insert(str, "MaxByteOffsetId", mu_string_strlen(str)); break;
-			case 4469: return mu_string_insert(str, "NoSignedWrap", mu_string_strlen(str)); break;
-			case 4470: return mu_string_insert(str, "NoUnsignedWrap", mu_string_strlen(str)); break;
-			case 4999: return mu_string_insert(str, "ExplicitInterp", mu_string_strlen(str)); break;
-			case 5248: return mu_string_insert(str, "OverrideCoverage", mu_string_strlen(str)); break;
-			case 5250: return mu_string_insert(str, "Passthrough", mu_string_strlen(str)); break;
-			case 5252: return mu_string_insert(str, "ViewportRelative", mu_string_strlen(str)); break;
-			case 5256: return mu_string_insert(str, "SecondaryViewportRelative", mu_string_strlen(str)); break;
-			case 5271: return mu_string_insert(str, "PerPrimitive", mu_string_strlen(str)); break;
-			case 5272: return mu_string_insert(str, "PerView", mu_string_strlen(str)); break;
-			case 5273: return mu_string_insert(str, "PerTask", mu_string_strlen(str)); break;
-			case 5285: return mu_string_insert(str, "PerVertex", mu_string_strlen(str)); break;
-			case 5300: return mu_string_insert(str, "NonUniform", mu_string_strlen(str)); break;
-			case 5355: return mu_string_insert(str, "RestrictPointer", mu_string_strlen(str)); break;
-			case 5356: return mu_string_insert(str, "AliasedPointer", mu_string_strlen(str)); break;
-			case 5398: return mu_string_insert(str, "BindlessSampler", mu_string_strlen(str)); break;
-			case 5399: return mu_string_insert(str, "BindlessImage", mu_string_strlen(str)); break;
-			case 5400: return mu_string_insert(str, "BoundSampler", mu_string_strlen(str)); break;
-			case 5401: return mu_string_insert(str, "BoundImage", mu_string_strlen(str)); break;
-			case 5599: return mu_string_insert(str, "SIMTCall", mu_string_strlen(str)); break;
-			case 5602: return mu_string_insert(str, "ReferencedIndirectly", mu_string_strlen(str)); break;
-			case 5607: return mu_string_insert(str, "Clobber", mu_string_strlen(str)); break;
-			case 5608: return mu_string_insert(str, "SideEffects", mu_string_strlen(str)); break;
-			case 5624: return mu_string_insert(str, "VectorComputeVariable", mu_string_strlen(str)); break;
-			case 5625: return mu_string_insert(str, "FuncParamIOKind", mu_string_strlen(str)); break;
-			case 5626: return mu_string_insert(str, "VectorComputeFunction", mu_string_strlen(str)); break;
-			case 5627: return mu_string_insert(str, "StackCall", mu_string_strlen(str)); break;
-			case 5628: return mu_string_insert(str, "GlobalVariableOffset", mu_string_strlen(str)); break;
-			case 5634: return mu_string_insert(str, "CounterBuffer", mu_string_strlen(str)); break;
-			case 5635: return mu_string_insert(str, "UserSemantic", mu_string_strlen(str)); break;
-			case 5636: return mu_string_insert(str, "UserType", mu_string_strlen(str)); break;
-			case 5822: return mu_string_insert(str, "FunctionRoundingMode", mu_string_strlen(str)); break;
-			case 5823: return mu_string_insert(str, "FunctionDenormMode", mu_string_strlen(str)); break;
-			case 5825: return mu_string_insert(str, "Register", mu_string_strlen(str)); break;
-			case 5826: return mu_string_insert(str, "Memory", mu_string_strlen(str)); break;
-			case 5827: return mu_string_insert(str, "Numbanks", mu_string_strlen(str)); break;
-			case 5828: return mu_string_insert(str, "Bankwidth", mu_string_strlen(str)); break;
-			case 5829: return mu_string_insert(str, "MaxPrivateCopies", mu_string_strlen(str)); break;
-			case 5830: return mu_string_insert(str, "Singlepump", mu_string_strlen(str)); break;
-			case 5831: return mu_string_insert(str, "Doublepump", mu_string_strlen(str)); break;
-			case 5832: return mu_string_insert(str, "MaxReplicates", mu_string_strlen(str)); break;
-			case 5833: return mu_string_insert(str, "SimpleDualPort", mu_string_strlen(str)); break;
-			case 5834: return mu_string_insert(str, "Merge", mu_string_strlen(str)); break;
-			case 5835: return mu_string_insert(str, "BankBits", mu_string_strlen(str)); break;
-			case 5836: return mu_string_insert(str, "ForcePow2Depth", mu_string_strlen(str)); break;
-			case 5899: return mu_string_insert(str, "BurstCoalesce", mu_string_strlen(str)); break;
-			case 5900: return mu_string_insert(str, "CacheSize", mu_string_strlen(str)); break;
-			case 5901: return mu_string_insert(str, "DontStaticallyCoalesce", mu_string_strlen(str)); break;
-			case 5902: return mu_string_insert(str, "Prefetch", mu_string_strlen(str)); break;
-			case 5905: return mu_string_insert(str, "StallEnable", mu_string_strlen(str)); break;
-			case 5907: return mu_string_insert(str, "FuseLoopsInFunction", mu_string_strlen(str)); break;
-			case 5914: return mu_string_insert(str, "AliasScope", mu_string_strlen(str)); break;
-			case 5915: return mu_string_insert(str, "NoAlias", mu_string_strlen(str)); break;
-			case 5921: return mu_string_insert(str, "BufferLocation", mu_string_strlen(str)); break;
-			case 5944: return mu_string_insert(str, "IOPipeStorage", mu_string_strlen(str)); break;
-			case 6080: return mu_string_insert(str, "FunctionFloatingPointMode", mu_string_strlen(str)); break;
-			case 6085: return mu_string_insert(str, "SingleElementVector", mu_string_strlen(str)); break;
-			case 6087: return mu_string_insert(str, "VectorComputeCallableFunction", mu_string_strlen(str)); break;
-			case 6140: return mu_string_insert(str, "MediaBlockIO", mu_string_strlen(str)); break;
-		}
-	}
-
 	muString muSAVE_insert_BuiltIn(muString str, uint32_m n) {
 		switch (n) {
 			default: return mu_string_insert(str, "UnknownBuiltIn", mu_string_strlen(str)); break;
@@ -2002,6 +2053,342 @@ muString muSAVE_insert_type_info(muString str, const char* binary, size_m len, u
 			case 5376: return mu_string_insert(str, "WarpID", mu_string_strlen(str)); break;
 			case 5377: return mu_string_insert(str, "SMID", mu_string_strlen(str)); break;
 			case 6021: return mu_string_insert(str, "CullMask", mu_string_strlen(str)); break;
+		}
+	}
+
+	muString muSAVE_insert_ReservedFPDenormMode(muString str, uint32_m n) {
+		switch (n) {
+			default: return mu_string_insert(str, "UnknownReservedFPDenormMode", mu_string_strlen(str)); break;
+			case 0: return mu_string_insert(str, "Preserve", mu_string_strlen(str)); break;
+			case 1: return mu_string_insert(str, "FlushToZero", mu_string_strlen(str)); break;
+		}
+	}
+
+	muString muSAVE_insert_Decoration(muString str, muSPIRVType type, const char* binary, size_m binarylen, size_m i, size_m* k, size_m step, uint32_m* latest_result_target, size_m* beg_str_i) {
+		switch (muSAVE_get_word(&binary[i+4+((*k*4))])) {
+			default: return mu_string_insert(str, "UnknownDecoration", mu_string_strlen(str)); break;
+			case 0: return mu_string_insert(str, "RelaxedPrecision", mu_string_strlen(str)); break;
+			case 1: {
+				str = mu_string_insert(str, "SpecId ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 2: return mu_string_insert(str, "Block", mu_string_strlen(str)); break;
+			case 3: return mu_string_insert(str, "BufferBlock", mu_string_strlen(str)); break;
+			case 4: return mu_string_insert(str, "RowMajor", mu_string_strlen(str)); break;
+			case 5: return mu_string_insert(str, "ColMajor", mu_string_strlen(str)); break;
+			case 6: {
+				str = mu_string_insert(str, "ArrayStride ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 7: {
+				str = mu_string_insert(str, "MatrixStride ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 8: return mu_string_insert(str, "GLSLShared", mu_string_strlen(str)); break;
+			case 9: return mu_string_insert(str, "GLSLPacked", mu_string_strlen(str)); break;
+			case 10: return mu_string_insert(str, "CPacked", mu_string_strlen(str)); break;
+			case 11: {
+				str = mu_string_insert(str, "BuiltIn ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_BuiltIn(str, muSAVE_get_word(&binary[i+4+((*k*4))]));
+			} break;
+			case 13: return mu_string_insert(str, "NoPerspective", mu_string_strlen(str)); break;
+			case 14: return mu_string_insert(str, "Flat", mu_string_strlen(str)); break;
+			case 15: return mu_string_insert(str, "Patch", mu_string_strlen(str)); break;
+			case 16: return mu_string_insert(str, "Centroid", mu_string_strlen(str)); break;
+			case 17: return mu_string_insert(str, "Sample", mu_string_strlen(str)); break;
+			case 18: return mu_string_insert(str, "Invariant", mu_string_strlen(str)); break;
+			case 19: return mu_string_insert(str, "Restrict", mu_string_strlen(str)); break;
+			case 20: return mu_string_insert(str, "Aliased", mu_string_strlen(str)); break;
+			case 21: return mu_string_insert(str, "Volatile", mu_string_strlen(str)); break;
+			case 22: return mu_string_insert(str, "Constant", mu_string_strlen(str)); break;
+			case 23: return mu_string_insert(str, "Coherent", mu_string_strlen(str)); break;
+			case 24: return mu_string_insert(str, "NonWritable", mu_string_strlen(str)); break;
+			case 25: return mu_string_insert(str, "NonReadable", mu_string_strlen(str)); break;
+			case 26: return mu_string_insert(str, "Uniform", mu_string_strlen(str)); break;
+			case 27: {
+				str = mu_string_insert(str, "UniformId ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_ID_TARGET, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 28: return mu_string_insert(str, "SaturatedConversion", mu_string_strlen(str)); break;
+			case 29: {
+				str = mu_string_insert(str, "Stream ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 30: {
+				str = mu_string_insert(str, "Location ", mu_string_strlen(str));
+				*k += 1;
+				// Might be StorageClass... docs don't phrase it clearly, making uint32 to be safe
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 31: {
+				str = mu_string_insert(str, "Component ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 32: {
+				str = mu_string_insert(str, "Index ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 33: {
+				str = mu_string_insert(str, "Binding ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 34: {
+				str = mu_string_insert(str, "DescriptorSet ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 35: {
+				str = mu_string_insert(str, "Offset ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 36: {
+				str = mu_string_insert(str, "XfbBuffer ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 37: {
+				str = mu_string_insert(str, "XfbStride ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 38: {
+				str = mu_string_insert(str, "FuncParamAttr ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_FunctionParameterAttribute(str, muSAVE_get_word(&binary[i+4+((*k*4))]));
+			} break;
+			case 39: {
+				str = mu_string_insert(str, "FPRoundingMode ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_FPRoundingMode(str, muSAVE_get_word(&binary[i+4+((*k*4))]));
+			} break;
+			case 40: {
+				str = mu_string_insert(str, "FPFastMathMode ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_FPFastMathMode(str, muSAVE_get_word(&binary[i+4+((*k*4))]));
+			} break;
+			case 41: {
+				str = mu_string_insert(str, "LinkageAttributes ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_STRING, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				*k += 1;
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				return muSAVE_insert_LinkageType(str, muSAVE_get_word(&binary[i+4+((*k*4))]));
+			} break;
+			case 42: return mu_string_insert(str, "NoContraction", mu_string_strlen(str)); break;
+			case 43: {
+				str = mu_string_insert(str, "InputAttachmentIndex ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 44: {
+				str = mu_string_insert(str, "Alignment ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 45: {
+				str = mu_string_insert(str, "MaxByteOffset ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 46: {
+				str = mu_string_insert(str, "AlignmentId ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_ID_TARGET, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 47: {
+				str = mu_string_insert(str, "MaxByteOffsetId ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_ID_TARGET, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 4469: return mu_string_insert(str, "NoSignedWrap", mu_string_strlen(str)); break;
+			case 4470: return mu_string_insert(str, "NoUnsignedWrap", mu_string_strlen(str)); break;
+			case 4999: return mu_string_insert(str, "ExplicitInterp", mu_string_strlen(str)); break;
+			case 5248: return mu_string_insert(str, "OverrideCoverage", mu_string_strlen(str)); break;
+			case 5250: return mu_string_insert(str, "Passthrough", mu_string_strlen(str)); break;
+			case 5252: return mu_string_insert(str, "ViewportRelative", mu_string_strlen(str)); break;
+			case 5256: {
+				str = mu_string_insert(str, "SecondaryViewportRelative ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5271: return mu_string_insert(str, "PerPrimitive", mu_string_strlen(str)); break;
+			case 5272: return mu_string_insert(str, "PerView", mu_string_strlen(str)); break;
+			case 5273: return mu_string_insert(str, "PerTask", mu_string_strlen(str)); break;
+			case 5285: return mu_string_insert(str, "PerVertex", mu_string_strlen(str)); break;
+			case 5300: return mu_string_insert(str, "NonUniform", mu_string_strlen(str)); break;
+			case 5355: return mu_string_insert(str, "RestrictPointer", mu_string_strlen(str)); break;
+			case 5356: return mu_string_insert(str, "AliasedPointer", mu_string_strlen(str)); break;
+			case 5398: return mu_string_insert(str, "BindlessSampler", mu_string_strlen(str)); break;
+			case 5399: return mu_string_insert(str, "BindlessImage", mu_string_strlen(str)); break;
+			case 5400: return mu_string_insert(str, "BoundSampler", mu_string_strlen(str)); break;
+			case 5401: return mu_string_insert(str, "BoundImage", mu_string_strlen(str)); break;
+			case 5599: {
+				str = mu_string_insert(str, "SIMTCall ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5602: return mu_string_insert(str, "ReferencedIndirectly", mu_string_strlen(str)); break;
+			case 5607: {
+				str = mu_string_insert(str, "Clobber ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5608: return mu_string_insert(str, "SideEffects", mu_string_strlen(str)); break;
+			case 5624: return mu_string_insert(str, "VectorComputeVariable", mu_string_strlen(str)); break;
+			case 5625: {
+				str = mu_string_insert(str, "FuncParamIOKind ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5626: return mu_string_insert(str, "VectorComputeFunction", mu_string_strlen(str)); break;
+			case 5627: return mu_string_insert(str, "StackCall", mu_string_strlen(str)); break;
+			case 5628: {
+				str = mu_string_insert(str, "GlobalVariableOffset ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5634: {
+				str = mu_string_insert(str, "CounterBuffer ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_ID_TARGET, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5635: {
+				str = mu_string_insert(str, "UserSemantic ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_STRING, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5636: {
+				str = mu_string_insert(str, "UserType ", mu_string_strlen(str));
+				*k += 1;
+				// Might be a string or number, undefined in spec... guessing string.
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_STRING, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5822: {
+				str = mu_string_insert(str, "FunctionRoundingMode ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				*k += 1;
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				return muSAVE_insert_FPRoundingMode(str, muSAVE_get_word(&binary[i+4+((*k*4))]));
+			} break;
+			case 5823: {
+				str = mu_string_insert(str, "FunctionDenormMode ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				*k += 1;
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				return muSAVE_insert_ReservedFPDenormMode(str, muSAVE_get_word(&binary[i+4+((*k*4))]));
+			} break;
+			case 5825: return mu_string_insert(str, "Register", mu_string_strlen(str)); break;
+			// @TODO handle operands for the rest of these (they're reserved and I'm lazy rn)
+			case 5826: {
+				str = mu_string_insert(str, "Memory ", mu_string_strlen(str));
+				*k += 1;
+				// "memory type" assuming uint32
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5827: {
+				str = mu_string_insert(str, "Numbanks ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5828: {
+				str = mu_string_insert(str, "Bankwidth ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5829: {
+				str = mu_string_insert(str, "MaxPrivateCopies ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5830: return mu_string_insert(str, "Singlepump", mu_string_strlen(str)); break;
+			case 5831: return mu_string_insert(str, "Doublepump", mu_string_strlen(str)); break;
+			case 5832: {
+				str = mu_string_insert(str, "MaxReplicates ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5833: return mu_string_insert(str, "SimpleDualPort", mu_string_strlen(str)); break;
+			case 5834: {
+				str = mu_string_insert(str, "Merge ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				*k += 1;
+				// "merge type" assuming uint32
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5835: {
+				str = mu_string_insert(str, "BankBits ", mu_string_strlen(str));
+				*k += 1;
+				// "bank bits" assuming uint32
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5836: {
+				str = mu_string_insert(str, "ForcePow2Depth ", mu_string_strlen(str));
+				*k += 1;
+				// "force key" assuming uint32
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5899: return mu_string_insert(str, "BurstCoalesce", mu_string_strlen(str)); break;
+			case 5900: {
+				str = mu_string_insert(str, "CacheSize ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5901: return mu_string_insert(str, "DontStaticallyCoalesce", mu_string_strlen(str)); break;
+			case 5902: {
+				str = mu_string_insert(str, "Prefetch ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5905: return mu_string_insert(str, "StallEnable", mu_string_strlen(str)); break;
+			case 5907: return mu_string_insert(str, "FuseLoopsInFunction", mu_string_strlen(str)); break;
+			case 5914: {
+				str = mu_string_insert(str, "AliasScope ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_ID_TARGET, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5915: {
+				str = mu_string_insert(str, "NoAlias ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_ID_TARGET, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5921: {
+				str = mu_string_insert(str, "BufferLocation ", mu_string_strlen(str));
+				*k += 1;
+				// "<id> ..." versus "Literal ... ID"
+				// ???? Assuming uint32
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 5944: {
+				str = mu_string_insert(str, "IOPipeStorage ", mu_string_strlen(str));
+				*k += 1;
+				// Same issue with this one
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 6080: {
+				str = mu_string_insert(str, "FunctionFloatingPointMode ", mu_string_strlen(str));
+				*k += 1;
+				str = muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_RESERVED_FP_OPERATION_MODE, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
+			case 6085: return mu_string_insert(str, "SingleElementVector", mu_string_strlen(str)); break;
+			case 6087: return mu_string_insert(str, "VectorComputeCallableFunction", mu_string_strlen(str)); break;
+			case 6140: return mu_string_insert(str, "MediaBlockIO", mu_string_strlen(str)); break;
 		}
 	}
 
@@ -2799,14 +3186,6 @@ muString muSAVE_insert_type_info(muString str, const char* binary, size_m len, u
 		return str;
 	}
 
-	muString muSAVE_insert_ReservedFPDenormMode(muString str, uint32_m n) {
-		switch (n) {
-			default: return mu_string_insert(str, "UnknownReservedFPDenormMode", mu_string_strlen(str)); break;
-			case 0: return mu_string_insert(str, "Preserve", mu_string_strlen(str)); break;
-			case 1: return mu_string_insert(str, "FlushToZero", mu_string_strlen(str)); break;
-		}
-	}
-
 	muString muSAVE_insert_ReservedFPOperationMode(muString str, uint32_m n) {
 		switch (n) {
 			default: return mu_string_insert(str, "UnknownReservedFPOperationMode", mu_string_strlen(str)); break;
@@ -2846,6 +3225,131 @@ muString muSAVE_insert_type_info(muString str, const char* binary, size_m len, u
 		}
 	}
 
+muString muSAVE_insert_instruction_by_type(muString str, muSPIRVType type, const char* binary, size_m binarylen, size_m i, size_m* k, size_m step, uint32_m* latest_result_target, size_m* beg_str_i) {
+	switch (type) {
+
+		default: {
+			str = mu_string_insert(str, " UnknownType", mu_string_strlen(str));
+		} break;
+
+		case MU_SPIRV_UINT32: {
+			str = mu_string_insert(str, " ", mu_string_strlen(str));
+			str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((*k*4))]), mu_string_strlen(str)); 
+		} break;
+
+		case MU_SPIRV_STRING: { // @TODO make utf-8 compliant (I think it is but still...)
+			str = mu_string_insert(str, " \"", mu_string_strlen(str));
+			str = mu_string_insert(str, (char*)&binary[i+4+((*k*4))], mu_string_strlen(str));
+			str = mu_string_insert(str, "\"", mu_string_strlen(str));
+			*k += (mu_strlen(&binary[i+4+(*k*4)])) / 4;
+		} break;
+
+		case MU_SPIRV_LITERAL_VALUE: {
+			str = mu_string_insert(str, " ", mu_string_strlen(str));
+			str = muSAVE_insert_type_info(str, binary, binarylen, *latest_result_target, (unsigned char*)&binary[i+4+((*k*4))], (step-*k)*2);
+		} break;
+
+		case MU_SPIRV_OPCODE: {
+			size_m ii = muSAVE_get_instruction_index(muSAVE_get_word(&binary[i+4+((*k*4))]));
+			if (ii == MU_SIZE_MAX) {
+				str = mu_string_insert(str, " UnknownOpcode", mu_string_strlen(str));
+			} else {
+				str = mu_string_insert(str, " ", mu_string_strlen(str));
+				str = mu_string_insert(str, (char*)mu_global_SPIRV_instructions[ii].name, mu_string_strlen(str));
+			}
+		} break;
+
+		case MU_SPIRV_ID_TARGET: {
+			str = mu_string_insert(str, " %", mu_string_strlen(str));
+			str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((*k*4))]), mu_string_strlen(str));
+		} break;
+
+		case MU_SPIRV_ID_TYPE: {
+			str = mu_string_insert(str, " %", mu_string_strlen(str));
+			str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((*k*4))]), mu_string_strlen(str));
+		} break;
+
+		case MU_SPIRV_ID_RESULT: {
+			str = mu_string_insert(str, "%", *beg_str_i);
+			*beg_str_i += 1;
+			size_m prevlen = mu_string_strlen(str);
+			str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((*k*4))]), *beg_str_i);
+			*beg_str_i += mu_string_strlen(str) - prevlen;
+			str = mu_string_insert(str, " = ", *beg_str_i);
+			*beg_str_i += 3;
+		} break;
+
+		case MU_SPIRV_ID_RESULT_TYPE: { // @TODO print type in parenthesis
+			str = mu_string_insert(str, " %", mu_string_strlen(str));
+			str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((*k*4))]), mu_string_strlen(str));
+			*latest_result_target = muSAVE_get_word(&binary[i+4+((*k*4))]);
+		} break;
+
+		case MU_SPIRV_ID_STRING: {
+			str = mu_string_insert(str, " %", mu_string_strlen(str));
+			str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((*k*4))]), mu_string_strlen(str));
+		} break;
+
+		case MU_SPIRV_ID_OPERAND: {
+			str = mu_string_insert(str, " %", mu_string_strlen(str));
+			str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((*k*4))]), mu_string_strlen(str));
+		} break;
+
+		case MU_SPIRV_SIGN: {
+			if (muSAVE_get_word(&binary[i+4+((*k*4))]) == 0) {
+				str = mu_string_insert(str, " Unsigned", mu_string_strlen(str));
+			} else if (muSAVE_get_word(&binary[i+4+((*k*4))]) == 1) {
+				str = mu_string_insert(str, " Signed", mu_string_strlen(str));
+			} else {
+				str = mu_string_insert(str, " UnknownSign", mu_string_strlen(str));
+			}
+		} break;
+
+		case MU_SPIRV_SOURCE_LANGUAGE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_SourceLanguage(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_EXECUTION_MODEL: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ExecutionModel(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_ADDRESSING_MODEL: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_AddressingModel(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_MEMORY_MODEL: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_MemoryModel(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_EXECUTION_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ExecutionMode(str, type, binary, binarylen, i, k, step, latest_result_target, beg_str_i); } break;
+		case MU_SPIRV_STORAGE_CLASS: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_StorageClass(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_DIM: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_Dim(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_SAMPLER_ADDRESSING_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_SamplerAddressingMode(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_SAMPLER_FILTER_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_SamplerFilterMode(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_IMAGE_FORMAT: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ImageFormat(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_IMAGE_CHANNEL_ORDER: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ImageChannelOrder(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_IMAGE_CHANNEL_DATA_TYPE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ImageChannelDataType(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_IMAGE_OPERANDS: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ImageOperands(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_FP_FAST_MATH_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_FPFastMathMode(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_FP_ROUNDING_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_FPRoundingMode(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_LINKAGE_TYPE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_LinkageType(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_ACCESS_QUALIFIER: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_AccessQualifier(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_FUNCTION_PARAMETER_ATTRIBUTE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_FunctionParameterAttribute(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_DECORATION: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_Decoration(str, type, binary, binarylen, i, k, step, latest_result_target, beg_str_i); } break;
+		case MU_SPIRV_BUILTIN: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_BuiltIn(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_SELECTION_CONTROL: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_SelectionControl(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_LOOP_CONTROL: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_LoopControl(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_FUNCTION_CONTROL: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_FunctionControl(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_MEMORY_SEMANTICS: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_MemorySemantics(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_MEMORY_OPERANDS: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_MemoryOperands(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_SCOPE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_Scope(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_GROUP_OPERATION: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_GroupOperation(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_KERNEL_ENQUEUE_FLAGS: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_KernelEnqueueFlags(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_KERNEL_PROFILING_INFO: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_KernelProfilingInfo(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_CAPABILITY: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_Capability(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_RESERVED_RAY_FLAGS: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedRayFlags(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_RESERVED_RAY_QUERY_INTERSECTION: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedRayQueryIntersection(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_RESERVED_RAY_QUERY_COMMITTED_TYPE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedRayQueryCommittedType(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_RESERVED_RAY_QUERY_CANDIDATE_TYPE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedRayQueryCandidateType(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_RESERVED_FRAGMENT_SHADING_RATE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedFragmentShadingRate(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_RESERVED_FP_DENORM_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedFPDenormMode(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_RESERVED_FP_OPERATION_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedFPOperationMode(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_QUANTIZATION_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedFPOperationMode(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_OVERFLOW_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_OverflowMode(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+		case MU_SPIRV_PACKED_VECTOR_FORMAT: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_PackedVectorFormat(str, muSAVE_get_word(&binary[i+4+((*k*4))])); } break;
+	}
+
+	return str;
+}
+
 /* instruction stuff */
 
 muString muSAVE_insert_instruction(muString str, size_m i, size_m j, uint16_m step, const char* binary, size_m binarylen, muBool print_newline) {
@@ -2878,111 +3382,7 @@ muString muSAVE_insert_instruction(muString str, size_m i, size_m j, uint16_m st
 			}
 			// handle type printing
 			// @TODO handle MU_SPIRV_INSTRUCTION
-			switch (type) {
-
-				default: {
-					str = mu_string_insert(str, " UnknownType", mu_string_strlen(str));
-				} break;
-
-				case MU_SPIRV_UINT32: {
-					str = mu_string_insert(str, " ", mu_string_strlen(str));
-					str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((k*4))]), mu_string_strlen(str)); 
-				} break;
-
-				case MU_SPIRV_STRING: { // @TODO make utf-8 compliant (I think it is but still...)
-					str = mu_string_insert(str, " \"", mu_string_strlen(str));
-					str = mu_string_insert(str, (char*)&binary[i+4+((k*4))], mu_string_strlen(str));
-					str = mu_string_insert(str, "\"", mu_string_strlen(str));
-					k += (mu_strlen(&binary[i+4+(k*4)])) / 4;
-				} break;
-
-				case MU_SPIRV_LITERAL_VALUE: {
-					str = mu_string_insert(str, " ", mu_string_strlen(str));
-					str = muSAVE_insert_type_info(str, binary, binarylen, latest_result_target, (unsigned char*)&binary[i+4+((k*4))], (step-k)*2);
-				} break;
-
-				case MU_SPIRV_ID_TARGET: {
-					str = mu_string_insert(str, " %", mu_string_strlen(str));
-					str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((k*4))]), mu_string_strlen(str));
-					latest_result_target = muSAVE_get_word(&binary[i+4+((k*4))]);
-				} break;
-
-				case MU_SPIRV_ID_TYPE: {
-					str = mu_string_insert(str, " %", mu_string_strlen(str));
-					str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((k*4))]), mu_string_strlen(str));
-				} break;
-
-				case MU_SPIRV_ID_RESULT: {
-					str = mu_string_insert(str, "%", beg_str_i);
-					beg_str_i++;
-					size_m prevlen = mu_string_strlen(str);
-					str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((k*4))]), beg_str_i);
-					beg_str_i += mu_string_strlen(str) - prevlen;
-					str = mu_string_insert(str, " = ", beg_str_i);
-					beg_str_i += 3;
-				} break;
-
-				case MU_SPIRV_ID_STRING: {
-					str = mu_string_insert(str, " %", mu_string_strlen(str));
-					str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((k*4))]), mu_string_strlen(str));
-				} break;
-
-				case MU_SPIRV_ID_OPERAND: {
-					str = mu_string_insert(str, " %", mu_string_strlen(str));
-					str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((k*4))]), mu_string_strlen(str));
-				} break;
-
-				case MU_SPIRV_SIGN: {
-					if (muSAVE_get_word(&binary[i+4+((k*4))]) == 0) {
-						str = mu_string_insert(str, " Unsigned", mu_string_strlen(str));
-					} else if (muSAVE_get_word(&binary[i+4+((k*4))]) == 1) {
-						str = mu_string_insert(str, " Signed", mu_string_strlen(str));
-					} else {
-						str = mu_string_insert(str, " UnknownSign", mu_string_strlen(str));
-					}
-				} break;
-
-				case MU_SPIRV_SOURCE_LANGUAGE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_SourceLanguage(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_EXECUTION_MODEL: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ExecutionModel(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_ADDRESSING_MODEL: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_AddressingModel(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_MEMORY_MODEL: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_MemoryModel(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_EXECUTION_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ExecutionMode(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_STORAGE_CLASS: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_StorageClass(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_DIM: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_Dim(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_SAMPLER_ADDRESSING_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_SamplerAddressingMode(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_SAMPLER_FILTER_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_SamplerFilterMode(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_IMAGE_FORMAT: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ImageFormat(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_IMAGE_CHANNEL_ORDER: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ImageChannelOrder(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_IMAGE_CHANNEL_DATA_TYPE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ImageChannelDataType(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_IMAGE_OPERANDS: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ImageOperands(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_FP_FAST_MATH_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_FPFastMathMode(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_FP_ROUNDING_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_FPRoundingMode(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_LINKAGE_TYPE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_LinkageType(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_ACCESS_QUALIFIER: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_AccessQualifier(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_FUNCTION_PARAMETER_ATTRIBUTE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_FunctionParameterAttribute(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_DECORATION: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_Decoration(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_BUILTIN: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_BuiltIn(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_SELECTION_CONTROL: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_SelectionControl(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_LOOP_CONTROL: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_LoopControl(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_FUNCTION_CONTROL: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_FunctionControl(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_MEMORY_SEMANTICS: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_MemorySemantics(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_MEMORY_OPERANDS: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_MemoryOperands(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_SCOPE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_Scope(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_GROUP_OPERATION: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_GroupOperation(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_KERNEL_ENQUEUE_FLAGS: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_KernelEnqueueFlags(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_KERNEL_PROFILING_INFO: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_KernelProfilingInfo(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_CAPABILITY: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_Capability(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_RESERVED_RAY_FLAGS: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedRayFlags(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_RESERVED_RAY_QUERY_INTERSECTION: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedRayQueryIntersection(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_RESERVED_RAY_QUERY_COMMITTED_TYPE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedRayQueryCommittedType(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_RESERVED_RAY_QUERY_CANDIDATE_TYPE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedRayQueryCandidateType(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_RESERVED_FRAGMENT_SHADING_RATE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedFragmentShadingRate(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_RESERVED_FP_DENORM_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedFPDenormMode(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_RESERVED_FP_OPERATION_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedFPOperationMode(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_QUANTIZATION_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_ReservedFPOperationMode(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_OVERFLOW_MODE: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_OverflowMode(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-				case MU_SPIRV_PACKED_VECTOR_FORMAT: { str = mu_string_insert(str, " ", mu_string_strlen(str)); str = muSAVE_insert_PackedVectorFormat(str, muSAVE_get_word(&binary[i+4+((k*4))])); } break;
-			}
+			str = muSAVE_insert_instruction_by_type(str, type, binary, binarylen, i, &k, step, &latest_result_target, &beg_str_i);
 			if (reached_indefinite && k < step-2) {
 				str = mu_string_insert(str, ",", mu_string_strlen(str));
 			}
