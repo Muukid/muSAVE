@@ -7,6 +7,7 @@ Licensed under MIT License or public domain, whichever you prefer.
 More explicit license information at the end of file.
 
 @TODO make VS compatible
+@TODO add types and names associated with ID's as an optional setting
 */
 
 #ifndef MUSAVE_H
@@ -1562,15 +1563,17 @@ muSPIRVInstruction mu_global_SPIRV_instructions[MU_SPIRV_INSTRUCTION_COUNT] = {
 	{ "OpGroupLogicalOr",                                                6407, 6,  0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_GROUP_OPERATION, MU_SPIRV_ID_TARGET, 0 } },
 	{ "OpGroupLogicalXor",                                               6408, 6,  0,                       { MU_SPIRV_ID_RESULT_TYPE, MU_SPIRV_ID_RESULT, MU_SPIRV_ID_TARGET, MU_SPIRV_GROUP_OPERATION, MU_SPIRV_ID_TARGET, 0 } },
 	// That's it (I think)
-
-	0
+	{ 0 }
 };
 
 /* useful functions */
 
-// @TODO improve the speed of this function
+// @TODO improve the speed of this function, not entirely important but still
 size_m muSAVE_get_instruction_index(uint16_m opcode) {
 	for (size_m i = 0; i < MU_SPIRV_INSTRUCTION_COUNT; i++) {
+		if (mu_global_SPIRV_instructions[i].name == 0) {
+			break;
+		}
 		if (mu_global_SPIRV_instructions[i].opcode == opcode) {
 			return i;
 		}
@@ -1825,7 +1828,11 @@ muString muSAVE_insert_instruction_by_type(muString str, muSPIRVType type, const
 			case 28: return mu_string_insert(str, "OutputLineStrip", mu_string_strlen(str)); break;
 			case 29: return mu_string_insert(str, "OutputTriangleStrip", mu_string_strlen(str)); break;
 			// @TODO figure this out
-			case 30: return mu_string_insert(str, "VecTypeHint", mu_string_strlen(str)); break;
+			case 30: {
+				str = mu_string_insert(str, "VecTypeHint ", mu_string_strlen(str));
+				*k += 1;
+				return muSAVE_insert_instruction_by_type(str, MU_SPIRV_UINT32, binary, binarylen, i, k, step, latest_result_target, beg_str_i);
+			} break;
 			case 31: return mu_string_insert(str, "ContractionOff", mu_string_strlen(str)); break;
 			case 33: return mu_string_insert(str, "Initializer", mu_string_strlen(str)); break;
 			case 34: return mu_string_insert(str, "Finalizer", mu_string_strlen(str)); break;
@@ -2711,7 +2718,6 @@ muString muSAVE_insert_instruction_by_type(muString str, muSPIRVType type, const
 				return muSAVE_insert_ReservedFPDenormMode(str, muSAVE_get_word(&binary[i+4+((*k*4))]));
 			} break;
 			case 5825: return mu_string_insert(str, "Register", mu_string_strlen(str)); break;
-			// @TODO handle operands for the rest of these (they're reserved and I'm lazy rn)
 			case 5826: {
 				str = mu_string_insert(str, "Memory ", mu_string_strlen(str));
 				*k += 1;
@@ -3658,7 +3664,7 @@ muString muSAVE_insert_instruction_by_type(muString str, muSPIRVType type, const
 			str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((*k*4))]), mu_string_strlen(str)); 
 		} break;
 
-		case MU_SPIRV_STRING: { // @TODO make utf-8 compliant (I think it is but still...)
+		case MU_SPIRV_STRING: {
 			str = mu_string_insert(str, " \"", mu_string_strlen(str));
 			str = mu_string_insert(str, (char*)&binary[i+4+((*k*4))], mu_string_strlen(str));
 			str = mu_string_insert(str, "\"", mu_string_strlen(str));
@@ -3700,9 +3706,14 @@ muString muSAVE_insert_instruction_by_type(muString str, muSPIRVType type, const
 			*beg_str_i += 3;
 		} break;
 
-		case MU_SPIRV_ID_RESULT_TYPE: { // @TODO print type in parenthesis
-			str = mu_string_insert(str, " %", mu_string_strlen(str));
-			str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((*k*4))]), mu_string_strlen(str));
+		case MU_SPIRV_ID_RESULT_TYPE: {
+			str = mu_string_insert(str, "[%", *beg_str_i);
+			*beg_str_i += 2;
+			size_m prevlen = mu_string_strlen(str);
+			str = mu_string_insert_integer(str, muSAVE_get_word(&binary[i+4+((*k*4))]), *beg_str_i);
+			*beg_str_i += mu_string_strlen(str) - prevlen;
+			str = mu_string_insert(str, "] ", *beg_str_i);
+			*beg_str_i += 2;
 			*latest_result_target = muSAVE_get_word(&binary[i+4+((*k*4))]);
 		} break;
 
@@ -3802,7 +3813,6 @@ muString muSAVE_insert_instruction(muString str, size_m i, size_m j, uint16_m st
 				//break;
 			}
 			// handle type printing
-			// @TODO handle MU_SPIRV_INSTRUCTION
 			str = muSAVE_insert_instruction_by_type(str, type, binary, binarylen, i, &k, step, &latest_result_target, &beg_str_i);
 			if (reached_indefinite && k < step-2) {
 				str = mu_string_insert(str, ",", mu_string_strlen(str));
@@ -3817,7 +3827,7 @@ muString muSAVE_insert_instruction(muString str, size_m i, size_m j, uint16_m st
 
 /* API-level functions */
 
-const char* mu_global_spirv_binary_to_assembly_error_msg = "[MUSAVE] Failed to convert SPIR-V binary to assembly; SPIR-V binary is incorrect or corrupted.\n";
+const char* mu_global_spirv_binary_to_assembly_error_msg = "[MUSAVE] Failed to convert SPIR-V binary to assembly; SPIR-V binary is incorrect/corrupted.\n";
 #define MU_SPIRV_BASSERT(c) {if(!(c)){mu_printf("%s",mu_global_spirv_binary_to_assembly_error_msg);str=mu_string_destroy(str);return empty_str;}}
 
 muString mu_spirv_binary_to_assembly(const char* binary, size_m len) {
@@ -3833,7 +3843,7 @@ muString mu_spirv_binary_to_assembly(const char* binary, size_m len) {
 	str = mu_string_insert_integer(str, MUSAVE_VERSION_MINOR, mu_string_strlen(str));
 	str = mu_string_insert(str, ".", mu_string_strlen(str));
 	str = mu_string_insert_integer(str, MUSAVE_VERSION_PATCH, mu_string_strlen(str));
-	str = mu_string_insert(str, " with explanation comments off.\n", mu_string_strlen(str));
+	str = mu_string_insert(str, "\n", mu_string_strlen(str));
 
 	/* First words of physical layout */ // @TODO add hex numbers
 	MU_SPIRV_BASSERT(len >= 24)
