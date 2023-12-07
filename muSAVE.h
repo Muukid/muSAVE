@@ -34,7 +34,7 @@ extern "C" { // }
 /* C standard library dependencies */
 
 #if !defined(mu_print) || !defined(mu_printf)
-    #ifdef MUCOSA_NO_PRINT
+    #ifdef MUSAVE_NO_PRINT
         #ifndef mu_print
             #define mu_print(msg)
         #endif
