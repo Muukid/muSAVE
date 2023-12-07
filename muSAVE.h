@@ -331,7 +331,7 @@ MUDEF muSPIRVInstruction mu_global_SPIRV_instructions[MU_SPIRV_INSTRUCTION_COUNT
 
 /* functions */
 
-muString mu_spirv_binary_to_assembly(const char* binary, size_m len);
+muString mu_spirv_binary_to_assembly(muResult* result, const char* binary, size_m len);
 
 #ifdef __cplusplus
 }
@@ -3828,9 +3828,9 @@ muString muSAVE_insert_instruction(muString str, size_m i, size_m j, uint16_m st
 /* API-level functions */
 
 const char* mu_global_spirv_binary_to_assembly_error_msg = "[MUSAVE] Failed to convert SPIR-V binary to assembly; SPIR-V binary is incorrect/corrupted.\n";
-#define MU_SPIRV_BASSERT(c) {if(!(c)){mu_printf("%s",mu_global_spirv_binary_to_assembly_error_msg);str=mu_string_destroy(str);return empty_str;}}
+#define MU_SPIRV_BASSERT(c) {if(!(c)){mu_printf("%s",mu_global_spirv_binary_to_assembly_error_msg);str=mu_string_destroy(str);if(result!=MU_NULL_PTR){*result=MU_FAILURE;}return empty_str;}}
 
-muString mu_spirv_binary_to_assembly(const char* binary, size_m len) {
+muString mu_spirv_binary_to_assembly(muResult* result, const char* binary, size_m len) {
 	muString empty_str = {0};
 	empty_str.s = MU_NULL_PTR;
 	empty_str.ws = MU_NULL_PTR;
@@ -3902,6 +3902,10 @@ muString mu_spirv_binary_to_assembly(const char* binary, size_m len) {
 		i += step * 4;
 	}
 	
+	if (result != MU_NULL_PTR) {
+		*result = MU_SUCCESS;
+	}
+
 	return str;
 }
 
